@@ -11,10 +11,14 @@ and https://zablo.net/blog/post/understanding-implementing-simclr-guide-eli5-pyt
 
 class InfoNCE(nn.Module):
     def __init__(self, batch_size, device, temperature, n_views):
+        super(InfoNCE, self).__init__()
         self.batch_size = batch_size
         self.n_views = n_views
         self.device = device
         self.temperature = temperature 
+        self.log = None
+        self.la = None 
+        self.criterion = torch.nn.CrossEntropyLoss().to(self.device)
 
     def info_nce_loss(self, features):
         labels = torch.cat([torch.arange(self.batch_size) for i in range(self.n_views)], dim=0)
@@ -39,8 +43,11 @@ class InfoNCE(nn.Module):
         logits = logits / self.temperature
         labels = torch.zeros(logits.shape[0], dtype=torch.long).to(self.device)
 
+        self.log = logits 
+        self.la = labels 
+        
         return logits, labels
 
     def forward(self, features):
         logits, labels = self.info_nce_loss(features) 
-        return F.cross_entropy(logits, labels).to(self.device)
+        return self.criterion(logits, labels)

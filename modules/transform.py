@@ -77,6 +77,4 @@ class TrainTransform(object):
         )
 
     def __call__(self, sample):
-        x1 = self.transform(sample)
-        x2 = self.transform_prime(sample)
-        return x1, x2
+        return self.transform(sample)
